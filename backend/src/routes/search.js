@@ -23,7 +23,7 @@ const autenticar = (req, res, next) => {
   }
 };
 
-// POST busca de IP
+// Realiza busca de IP + inserção no histórico (logs)
 router.post(
   '/search',
   autenticar,
