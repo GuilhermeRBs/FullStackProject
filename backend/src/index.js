@@ -13,6 +13,8 @@ app.use(express.json());
 const authRoutes = require('./routes/auth');
 app.use('/api', authRoutes);
 
+const searchRoutes = require('./routes/search');
+app.use('/api', searchRoutes);
 
 app.get('/', (req, res) => {
   res.send('Servidor Express rodando...');
