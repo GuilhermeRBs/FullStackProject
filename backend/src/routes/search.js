@@ -27,7 +27,11 @@ const autenticar = (req, res, next) => {
 router.post(
   '/search',
   autenticar,
-  [body('ip').notEmpty().withMessage('O campo IP é obrigatório')],
+  [
+    body('ip')
+      .notEmpty().withMessage('O campo IP é obrigatório')
+      .isIP().withMessage('IP inválido')
+  ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
