@@ -1,11 +1,11 @@
 import React from "react";
 import { IpProvider } from "./contexts/ipContext";
-import Home from "./pages/Home";
+import Rotas from "./components/Rotas";
 
 function App() {
   return (
     <IpProvider>
-      <Home />
+      <Rotas />
     </IpProvider>
   );
 }

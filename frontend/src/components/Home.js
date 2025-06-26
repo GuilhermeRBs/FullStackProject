@@ -1,6 +1,5 @@
 import React, { useContext, useState, useMemo } from 'react';
-import Dashboard from './Dashboard';
-import DashboardCard from '../components/DashboardCard';
+import DashboardCard from './DashboardCard';
 import { IpContext } from '../contexts/ipContext';
 import validator from 'validator';
 import DOMPurify from 'dompurify';
