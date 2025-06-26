@@ -10,7 +10,7 @@ require('dotenv').config();
 // Rota Login
 router.post('/login',
   [
-    body('username').notEmpty().withMessage('Usuário é obrigatório'),
+    body('email').notEmpty().withMessage('email é obrigatório'),
     body('password').notEmpty().withMessage('Senha é obrigatória')
   ],
   async (req, res) => {
@@ -19,10 +19,10 @@ router.post('/login',
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     try {
-      const user = await User.findOne({ username });
+      const user = await User.findOne({ email });
       if (!user) {
         return res.status(401).json({ message: 'Credenciais inválidas' });
       }
