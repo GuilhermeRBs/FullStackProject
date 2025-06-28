@@ -5,6 +5,10 @@ const PORT = process.env.PORT || 3000;
 const connectDB = require('./config/dbConfig');
 connectDB();
 
+const compression = require('compression');
+app.use(compression());
+
+
 const cors = require('cors');
 app.use(cors());
 
