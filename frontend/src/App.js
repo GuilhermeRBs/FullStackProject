@@ -1,12 +1,11 @@
 import React from "react";
-import { IpProvider } from "./contexts/ipContext";
 import Rotas from "./components/Rotas";
+import './App.css';
+
 
 function App() {
   return (
-    <IpProvider>
       <Rotas />
-    </IpProvider>
   );
 }
 

@@ -1,56 +1,51 @@
 import { useState } from 'react';
 import api from './axios';
+import DashboardCard from './DashboardCard';
 
 export default function Search() {
   const [ip, setIp] = useState('');
   const [resultado, setResultado] = useState(null);
   const [erro, setErro] = useState('');
 
-  const buscarIp = async (e) => {
-    e.preventDefault();
+  const handleSearch = async () => {
     setErro('');
     setResultado(null);
-
-    if (!ip.trim()) {
-      setErro('Informe um IP válido');
-      return;
-    }
-
     try {
       const token = localStorage.getItem('token');
-      const res = await api.post(
-        '/search',
-        { ip },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setResultado(res.data);
+      const res = await api.post('/search', { ip }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setResultado(res.data.resultado);
     } catch (err) {
       setErro(err.response?.data?.message || 'Erro ao buscar IP');
     }
   };
 
   return (
-    <div>
-      <h2>Buscar IP</h2>
-      <form onSubmit={buscarIp}>
+    <div className="container-centralizado">
+      <div className="form-box">
+        <h2>Buscar IP</h2>
         <input
           type="text"
-          placeholder="Digite o IP"
+          placeholder="Digite um IP"
           value={ip}
           onChange={(e) => setIp(e.target.value)}
         />
-        <button type="submit">Buscar</button>
-      </form>
+        <button onClick={handleSearch}>Buscar</button>
 
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+        {erro && <p style={{ color: 'red' }}>{erro}</p>}
 
-      {resultado && (
-        <pre>{JSON.stringify(resultado, null, 2)}</pre>
-      )}
+        {resultado && (
+          <>
+            <DashboardCard title="IP" value={resultado.ip} />
+            <DashboardCard title="Cidade" value={resultado.cidade} />
+            <DashboardCard title="Estado" value={resultado.estado} />
+            <DashboardCard title="País" value={resultado.pais} />
+          </>
+        )}
+      </div>
     </div>
   );
 }

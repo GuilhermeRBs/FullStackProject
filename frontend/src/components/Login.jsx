@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import api from './axios';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +20,7 @@ export default function Login() {
   };
 
   return (
-    <div>
+    <div className="container-centralizado">
       <h2>Login</h2>
       {erro && <p style={{ color: 'red' }}>{erro}</p>}
       <form onSubmit={handleSubmit}>
