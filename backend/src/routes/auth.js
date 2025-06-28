@@ -8,10 +8,20 @@ const { body, validationResult } = require('express-validator');
 require('dotenv').config();
 
 // Rota Login
-router.post('/login',
+router.post(
+  '/login',
   [
-    body('email').notEmpty().withMessage('email é obrigatório'),
-    body('password').notEmpty().withMessage('Senha é obrigatória')
+    body('email')
+      .trim()
+      .normalizeEmail()
+      .notEmpty().withMessage('Email é obrigatório')
+      .isEmail().withMessage('Formato de email inválido'),
+
+    body('password')
+      .trim()
+      .escape()
+      .notEmpty().withMessage('Senha é obrigatória')
+      .isLength({ min: 6 }).withMessage('A senha deve ter pelo menos 6 caracteres')
   ],
   async (req, res) => {
     const errors = validationResult(req);

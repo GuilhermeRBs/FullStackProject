@@ -21,10 +21,20 @@ const autenticar = (req, res, next) => {
 };
 
 // POST /api/insert
-router.post('/insert', autenticar,
+router.post(
+  '/insert',
+  autenticar,
   [
-    body('nome').notEmpty().withMessage('Campo nome é obrigatório'),
-    body('ip').notEmpty().withMessage('Campo IP é obrigatório')
+    body('nome')
+      .trim()
+      .escape()
+      .notEmpty().withMessage('Campo nome é obrigatório')
+      .isLength({ max: 50 }).withMessage('Nome deve ter no máximo 50 caracteres'),
+
+    body('ip')
+      .trim()
+      .notEmpty().withMessage('Campo IP é obrigatório')
+      .isIP().withMessage('Formato de IP inválido')
   ],
   async (req, res) => {
     const errors = validationResult(req);

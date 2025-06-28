@@ -23,14 +23,16 @@ const autenticar = (req, res, next) => {
   }
 };
 
-// Realiza busca de IP + inserção no histórico (logs)
+// POST /search (busca IP + salva no histórico)
 router.post(
   '/search',
   autenticar,
   [
     body('ip')
+      .trim()
       .notEmpty().withMessage('O campo IP é obrigatório')
-      .isIP().withMessage('IP inválido')
+      .isIP().withMessage('Formato de IP inválido')
+      .escape()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -54,10 +56,12 @@ router.post(
         resultado: resultadoSimulado,
         data: new Date()
       });
+
       await novaBusca.save();
 
       res.json({ resultado: resultadoSimulado });
     } catch (err) {
+      console.error('Erro na busca de IP:', err.message);
       res.status(500).json({ message: 'Erro na busca de IP' });
     }
   }
