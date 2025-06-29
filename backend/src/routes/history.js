@@ -22,8 +22,23 @@ const autenticar = (req, res, next) => {
 // Rota para buscar histórico
 router.get('/history', autenticar, async (req, res) => {
   try {
-    const historico = await SearchHistory.find({ userId: req.userId }).sort({ data: -1 });
-    res.json({ historico });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const historico = await SearchHistory.find({ userId: req.userId })
+      .sort({ data: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await SearchHistory.countDocuments({ userId: req.userId });
+
+    res.json({
+      historico,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (error) {
     res.status(500).json({ message: 'Erro ao buscar histórico' });
   }

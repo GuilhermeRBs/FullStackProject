@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
+const apicache = require('apicache');
+const cache = apicache.options({
+  appendKey: (req, res) => req.body.ip
+}).middleware;
 const mongoose = require('mongoose');
 require('dotenv').config();
 
@@ -23,10 +27,11 @@ const autenticar = (req, res, next) => {
   }
 };
 
-// POST /search (busca IP + salva no histórico)
+// POST /search (busca IP + salva no histórico ou retorna registro existente)
 router.post(
   '/search',
   autenticar,
+  cache('2 minutes'),
   [
     body('ip')
       .trim()
@@ -43,6 +48,17 @@ router.post(
     const { ip } = req.body;
 
     try {
+      // Verifica se o IP já foi inseredo anteriormente
+      const resultadoExistente = await SearchHistory.findOne({
+        userId: req.userId,
+        ipConsultado: ip
+      });
+
+      if (resultadoExistente) {
+        return res.json({ resultado: resultadoExistente.resultado });
+      }
+
+      // Se não existir, gera resultado simulado
       const resultadoSimulado = {
         ip,
         cidade: 'Curitiba',

@@ -4,21 +4,32 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-import rateLimit from 'express-rate-limit';
+const rateLimit = require('express-rate-limit');
+require('dotenv').config();
+
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'DD-MM-YYYY HH:mm:ss' }),
+    winston.format.printf(({ timestamp, level, message }) => `[${timestamp}] ${level.toUpperCase()}: ${message}`)
+  ),
+  transports: [
+    new winston.transports.File({ filename: 'atividade.log' }),
+    new winston.transports.File({ filename: 'erros.log', level: 'error' })
+  ]
+});
 
 const limiter = rateLimit({
   windowMs: 5 * 60 * 1000,
-  max: 5, // Máximo de 5 tentativas
+  max: 5,
   message: { message: 'Muitas tentativas de login. Tente novamente em alguns minutos.' }
 });
 
-app.use('/api/login', limiter);
-
-require('dotenv').config();
-
 // Rota Login
 router.post(
-  '/login', loginLimiter,
+  '/login', limiter,
   [
     body('email')
       .trim()
@@ -35,6 +46,7 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      logger.warn(`Validação falhou no login: ${JSON.stringify(errors.array())}`);
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -43,11 +55,13 @@ router.post(
     try {
       const user = await User.findOne({ email });
       if (!user) {
+        logger.warn(`Tentativa de login com email inexistente: ${email}`);
         return res.status(401).json({ message: 'Credenciais inválidas' });
       }
 
       const passwordMatch = await bcrypt.compare(password, user.password);
       if (!passwordMatch) {
+        logger.warn(`Senha incorreta para o email: ${email}`);
         return res.status(401).json({ message: 'Credenciais inválidas' });
       }
 
@@ -55,9 +69,10 @@ router.post(
         expiresIn: '1h'
       });
 
+      logger.info(`Login realizado com sucesso para o email: ${email}`);
       res.json({ token });
     } catch (err) {
-      console.error('Erro no login:', err.message);
+      logger.error(`Erro inesperado no login: ${err.message}`);
       res.status(500).json({ message: 'Erro interno do servidor' });
     }
   }
