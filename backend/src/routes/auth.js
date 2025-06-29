@@ -4,12 +4,21 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
+import rateLimit from 'express-rate-limit';
+
+const limiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 5, // Máximo de 5 tentativas
+  message: { message: 'Muitas tentativas de login. Tente novamente em alguns minutos.' }
+});
+
+app.use('/api/login', limiter);
 
 require('dotenv').config();
 
 // Rota Login
 router.post(
-  '/login',
+  '/login', loginLimiter,
   [
     body('email')
       .trim()
