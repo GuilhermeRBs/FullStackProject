@@ -6,6 +6,7 @@ export default function Insert() {
   const [ip, setIp] = useState('');
   const [nome, setNome] = useState('');
   const [mensagem, setMensagem] = useState('');
+  const [tipoMensagem, setTipoMensagem] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,11 +15,18 @@ export default function Insert() {
       await api.post('/insert', { ip, nome }, {
         headers: { Authorization: `Bearer ${token}` }
       });
+
       setMensagem('IP inserido com sucesso!');
+      setTipoMensagem('sucesso');
       setIp('');
       setNome('');
     } catch (err) {
-      setMensagem('Erro ao inserir IP');
+      if (err.response?.status === 409) {
+        setMensagem('Este IP já foi inserido anteriormente.');
+      } else {
+        setMensagem('Erro ao inserir IP. Tente novamente.');
+      }
+      setTipoMensagem('erro');
     }
   };
 
@@ -43,7 +51,11 @@ export default function Insert() {
           />
           <button type="submit">Inserir</button>
         </form>
-        {mensagem && <p>{mensagem}</p>}
+        {mensagem && (
+          <p style={{ color: tipoMensagem === 'sucesso' ? 'green' : 'red', marginTop: '12px' }}>
+            {mensagem}
+          </p>
+        )}
       </div>
     </div>
   );
